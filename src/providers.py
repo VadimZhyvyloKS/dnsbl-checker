@@ -117,9 +117,10 @@ def retrieve_remote_providers():
     resp = requests.get("http://multirbl.valli.org/list/")
 
     if resp.status_code != 200:
-        print("Received black lists")
+        print("Error during fetching remote black lists")
     else:
-
+        print("Received black lists")
+        
         soup = BeautifulSoup(resp.content, 'html.parser')
 
         for x in soup.find("table").find_all('tr'):
