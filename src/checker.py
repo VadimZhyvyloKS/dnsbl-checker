@@ -114,13 +114,19 @@ class DNSBLChecker(object):
         txt_response = None
         error = None
 
-        try:
-            async with self._semaphore:
+        async with self._semaphore:
+            try:
                 a_response = await self._resolver.query(dnsbl_query, 'A')
-                txt_response = await self._resolver.query(dnsbl_query, 'TXT')
-        except aiodns.error.DNSError as exc:
-            if exc.args[0] != 4:  # 4: domain name not found:
-                error = exc
+            except aiodns.error.DNSError as exc:
+                if exc.args[0] != 4:  # 4: domain name not found:
+                    error = exc
+            else:
+                try:
+                    txt_response = await self._resolver.query(
+                        dnsbl_query, 'TXT'
+                    )
+                except aiodns.error.DNSError:
+                    pass
 
         if self.progress is not None:
             self.progress.update(1)
