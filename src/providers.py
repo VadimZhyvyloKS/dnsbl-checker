@@ -125,9 +125,9 @@ def retrieve_remote_providers():
 
         for x in soup.find("table").find_all('tr'):
             black_list = x.contents[2].next
-            if (black_list == "(hidden)"
-                    or black_list in _BANNED_BLACKLISTS
-                    or black_list in _BASE_PROVIDERS):
+            if (black_list == "(hidden)" or
+                    black_list in _BANNED_BLACKLISTS or
+                    black_list in _BASE_PROVIDERS):
                 continue
 
             providers.append(Provider(black_list))
