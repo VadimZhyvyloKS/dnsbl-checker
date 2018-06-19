@@ -1,6 +1,7 @@
 import argparse
 import json
 import shelve
+import sys
 
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(
@@ -17,6 +18,10 @@ if __name__ == "__main__":
         if args.ip_address == 'all':
             data = db
         else:
-            data = db[args.ip_address]
+            try:
+                data = db[args.ip_address]
+            except KeyError:
+                print('IP {} was not found'.format(args.ip_address))
+                sys.exit(1)
 
         print(json.dumps(dict(data), indent=2, sort_keys=True))
