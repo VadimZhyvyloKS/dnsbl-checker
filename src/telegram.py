@@ -10,7 +10,7 @@ class TGClient:
 
         self._loop = loop or asyncio.get_event_loop()
         self._session = lambda: aiohttp.ClientSession(loop=self._loop)
-        self._semaphore = asyncio.Semaphore(15)
+        self._semaphore = asyncio.Semaphore(5, loop=self._loop)
 
     async def _send_request(self, client, data):
         async with self._semaphore:
@@ -31,10 +31,6 @@ class TGClient:
 
         return await asyncio.gather(*tasks)
 
-    async def async_send_msg(self, msg):
-        async with self._session() as client:
-            return await self._send_msg(msg, client)
-
     async def async_send_msgs(self, msgs):
         tasks = []
         async with self._session() as client:
@@ -43,9 +39,5 @@ class TGClient:
 
             return await asyncio.gather(*tasks)
 
-    def send_msg(self, msg):
-        return self._loop.run_until_complete(self.async_send_msg(msg))
-
     def send_msgs(self, *msgs):
         return self._loop.run_until_complete(self.async_send_msgs(msgs))
-

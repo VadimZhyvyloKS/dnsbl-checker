@@ -2,8 +2,7 @@ import socket
 import asyncio
 import aiodns
 
-from src.providers import (retrieve_remote_providers, BASE_PROVIDERS,
-                           DNSBL_CATEGORIES)
+from src.providers import DNSBL_CATEGORIES
 
 
 class DNSBLResult(object):
@@ -73,16 +72,13 @@ class DNSBLResponse(object):
 
 class DNSBLChecker(object):
     def __init__(self,
+                 providers,
                  timeout=5,
                  tries=2,
                  concurrency=200,
-                 fetch_bls=True,
                  loop=None):
 
-        self.providers = BASE_PROVIDERS
-
-        if fetch_bls:
-            self.providers += retrieve_remote_providers()
+        self.providers = providers
 
         self.progress = None
 
@@ -156,4 +152,3 @@ class DNSBLChecker(object):
         for addr in addrs:
             tasks.append(self._check_ip(addr))
         return self._loop.run_until_complete(asyncio.gather(*tasks))
-

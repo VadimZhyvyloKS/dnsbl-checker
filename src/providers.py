@@ -6,6 +6,8 @@ Most part of _BASE_PROVIDERS was taken from https://github.com/vincecarney/dnsbl
 import requests
 from bs4 import BeautifulSoup
 
+from src.utils import parse_file
+
 # providers answers could be interpreted in one of the following categories
 DNSBL_CATEGORIES = {'spam', 'proxy', 'malware', 'botnet', 'exploits', 'unknown'}
 
@@ -44,95 +46,33 @@ class ZenSpamhaus(Provider):
         return categories
 
 
-# this list is converted into list of Providers bellow
-_BASE_PROVIDERS = [
-    'aspews.ext.sorbs.net',
-    'b.barracudacentral.org',
-    'bl.deadbeef.com',
-    'bl.spamcop.net',
-    'blackholes.five-ten-sg.com',
-    'blacklist.woody.ch',
-    'bogons.cymru.com',
-    'cbl.abuseat.org',
-    'cdl.anti-spam.org.cn',
-    'combined.abuse.ch',
-    'combined.rbl.msrbl.net',
-    'db.wpbl.info',
-    'dnsbl-1.uceprotect.net',
-    'dnsbl-2.uceprotect.net',
-    'dnsbl-3.uceprotect.net',
-    'dnsbl.cyberlogic.net',
-    'dnsbl.inps.de',
-    'dnsbl.sorbs.net',
-    'drone.abuse.ch',
-    'dul.dnsbl.sorbs.net',
-    'dul.ru',
-    'dyna.spamrats.com',
-    'dynip.rothen.com',
-    'http.dnsbl.sorbs.net'
-    'images.rbl.msrbl.net',
-    'ips.backscatterer.org',
-    'ix.dnsbl.manitu.net',
-    'korea.services.net',
-    'misc.dnsbl.sorbs.net',
-    'noptr.spamrats.com',
-    'phishing.rbl.msrbl.net',
-    'proxy.bl.gweep.ca',
-    'proxy.block.transip.nl',
-    'psbl.surriel.com',
-    'rbl.interserver.net',
-    'relays.bl.gweep.ca',
-    'relays.bl.kundenserver.de',
-    'relays.nether.net',
-    'residential.block.transip.nl',
-    'smtp.dnsbl.sorbs.net',
-    'socks.dnsbl.sorbs.net',
-    'spam.abuse.ch',
-    'spam.dnsbl.sorbs.net',
-    'spam.rbl.msrbl.net',
-    'spam.spamrats.com',
-    'spamlist.or.kr',
-    'spamrbl.imp.ch',
-    'tor.dnsbl.sectoor.de',
-    'torserver.tor.dnsbl.sectoor.de',
-    'ubl.lashback.com',
-    'ubl.unsubscore.com',
-    'virbl.bit.nl',
-    'virus.rbl.msrbl.net',
-    'web.dnsbl.sorbs.net',
-    'wormrbl.imp.ch',
-    'zombie.dnsbl.sorbs.net',
-]
-
-_BANNED_BLACKLISTS = (
-    "dwl.dnswl.org",
-    "list.dnswl.org"
-)
-
-
-def retrieve_remote_providers():
-    providers = list()
-
-    print("Getting list of black lists")
+def update_providers(fname, banned_providers=None):
+    print("Getting list of black lists...")
     resp = requests.get("http://multirbl.valli.org/list/")
 
     if resp.status_code != 200:
-        print("Error during fetching remote black lists")
+        print("Failed to fetch remote black lists. Continue...")
     else:
         print("Received black lists")
         
         soup = BeautifulSoup(resp.content, 'html.parser')
 
-        for x in soup.find("table").find_all('tr'):
-            black_list = x.contents[2].next
-            if (black_list == "(hidden)" or
-                    black_list in _BANNED_BLACKLISTS or
-                    black_list in _BASE_PROVIDERS):
-                continue
+        providers = parse_file(fname) or list()
+        with open(fname, 'a+') as file:
+            for x in soup.find("table").find_all('tr'):
+                black_list = x.contents[2].next
+                if (black_list == "(hidden)"
+                        or black_list in providers
+                        or black_list in banned_providers):
+                    continue
 
-            providers.append(Provider(black_list))
+                file.write(black_list + '\n')
+
+
+def get_providers(fname):
+    providers = [ZenSpamhaus()]
+
+    for host in parse_file(fname) or list():
+        providers.append(Provider(host))
 
     return providers
-
-
-BASE_PROVIDERS = [Provider(host) for host in _BASE_PROVIDERS] + [ZenSpamhaus()]
