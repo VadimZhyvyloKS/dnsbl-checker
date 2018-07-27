@@ -19,8 +19,9 @@ install_requires = [
 
 setup(
     name='dnsbl_checker',
-    version='0.1',
+    version='0.0.1',
     description='Asynchronous script for monitoring dns blacklists',
+    long_description=_read('README.md'),
     author='Vadim Zhyvylo',
     author_email='jyvylo5@gmail.com',
     url='https://github.com/VadimZhyvyloKS/dnsbl-checker',
