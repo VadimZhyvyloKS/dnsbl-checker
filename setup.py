@@ -26,11 +26,11 @@ setup(
     url='https://github.com/VadimZhyvyloKS/dnsbl-checker',
     license='MIT',
     install_requires=install_requires,
-    keywords='dns blacklist dnsbl async check',
-    incude_package_data=True,
-    packages=['src'],
+    keywords='dns blacklist dnsbl async asynchronous check',
+    include_package_data=True,
+    packages=['dnsbl_checker'],
     entry_points='''
         [console_scripts]
-        dnsbl=cli:cli
+        dnsbl=dnsbl_checker.cli:cli
     '''
 )

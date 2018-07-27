@@ -2,7 +2,7 @@ import socket
 import asyncio
 import aiodns
 
-from src.providers import DNSBL_CATEGORIES
+from dnsbl_checker.providers import DNSBL_CATEGORIES
 
 
 class DNSBLResult(object):

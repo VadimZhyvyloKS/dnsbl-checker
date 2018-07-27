@@ -6,7 +6,7 @@ Most part of _BASE_PROVIDERS was taken from https://github.com/vincecarney/dnsbl
 import requests
 from bs4 import BeautifulSoup
 
-from src.utils import parse_file
+from dnsbl_checker.utils import parse_file
 
 # providers answers could be interpreted in one of the following categories
 DNSBL_CATEGORIES = {'spam', 'proxy', 'malware', 'botnet', 'exploits', 'unknown'}

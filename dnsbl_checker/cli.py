@@ -3,21 +3,37 @@ import json
 import shelve
 import sys
 import os
+import errno
 
 import click
 import yaml
 import tqdm
 
-from src.utils import parse_file
-from src.providers import update_providers, get_providers
-from src.checker import DNSBLChecker
-from src.saver import Saver
-from src.telegram import TGClient
+from dnsbl_checker.utils import parse_file
+from dnsbl_checker.providers import update_providers, get_providers
+from dnsbl_checker.checker import DNSBLChecker
+from dnsbl_checker.saver import Saver
+from dnsbl_checker.telegram import TGClient
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-db_file = dir_path + '/blacklisted'
-providers_file = dir_path + '/providers.txt'
+data_dir = os.path.join(dir_path, 'data')
+
+db_file = os.path.join(data_dir, 'blacklisted')
+providers_file = os.path.join(data_dir, 'providers.txt')
+
+if not os.path.exists(data_dir):
+    try:
+        os.makedirs(data_dir)
+    except OSError as exc:  # Guard against race condition
+        if exc.errno != errno.EEXIST:
+            raise
+
+    with open(providers_file, 'w+'):
+        pass
+
+    with shelve.open(db_file, flag='n'):
+        pass
 
 
 @click.group()
