@@ -46,3 +46,10 @@ class Saver:
                 self.changes[ip.addr] = change_data
 
             ip.save()
+
+    def delete_providers(self, providers):
+        for provider in providers:
+            for ip, bls in self._db.items():
+                if provider in bls:
+                    del self._db[ip][provider]
+                    break

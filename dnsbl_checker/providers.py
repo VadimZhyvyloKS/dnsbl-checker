@@ -48,25 +48,33 @@ class ZenSpamhaus(Provider):
 
 def update_providers(fname, banned_providers=None):
     print("Getting list of black lists...")
-    resp = requests.get("http://multirbl.valli.org/list/")
+
+    try:
+        resp = requests.get("http://multirbl.valli.org/list/")
+    except requests.exceptions.RequestException:
+        print("Failed to fetch remote black lists. Continue...")
+        return
 
     if resp.status_code != 200:
         print("Failed to fetch remote black lists. Continue...")
-    else:
-        print("Received black lists")
-        
-        soup = BeautifulSoup(resp.content, 'html.parser')
+        return
 
-        providers = parse_file(fname) or list()
-        with open(fname, 'a+') as file:
-            for x in soup.find("table").find_all('tr'):
-                black_list = x.contents[2].next
-                if (black_list == "(hidden)"
-                        or black_list in providers
-                        or black_list in banned_providers):
-                    continue
+    print("Received black lists")
 
-                file.write(black_list + '\n')
+    soup = BeautifulSoup(resp.content, 'html.parser')
+
+    # rewrite providers
+    with open(fname, 'w+') as file:
+        for row in soup.find("table").find_all('tr'):
+            if row.contents[6].next != 'b':  # provider is blacklist
+                continue
+
+            black_list = row.contents[2].next
+            if (black_list == "(hidden)"
+                    or black_list in banned_providers):
+                continue
+
+            file.write(black_list + '\n')
 
 
 def get_providers(fname):
