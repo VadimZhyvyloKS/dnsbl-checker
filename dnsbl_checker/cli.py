@@ -67,14 +67,20 @@ def check(conf_file):
 
     loop = asyncio.get_event_loop()
 
+    banned_providers = parse_file(config.get('banned_providers'))
+
     result = inspect(
         parse_file(config['ips']),
         loop,
-        parse_file(config.get('banned_providers'))
+        banned_providers
     )
 
     with shelve.open(db_file) as db:
         saver = Saver(db)
+
+        if banned_providers:
+            saver.delete_providers(banned_providers)
+
         saver.save_results(result)
 
     if 'telegram_token' in config and 'telegram_ids' in config:

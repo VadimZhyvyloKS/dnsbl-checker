@@ -3,7 +3,7 @@ import os
 
 def parse_file(file):
     if file is None or not os.path.isfile(file):
-        return
+        return list()
 
     items = list()
     with open(file, "rt") as list_file:
