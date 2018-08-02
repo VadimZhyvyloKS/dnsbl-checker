@@ -96,6 +96,15 @@ def check(conf_file):
         print('Skipping notifications')
 
 
+@cli.command()
+def truncate_db():
+    click.confirm('Do you really want to truncate db?', abort=True)
+
+    with shelve.open(db_file, flag='n'):
+        pass
+    print('DB was successfully truncated')
+
+
 def inspect(ips, loop, banned_providers=None):
     update_providers(providers_file,
                      banned_providers=banned_providers)
@@ -132,13 +141,15 @@ def prepare_tg_msgs(changes):
     def get_record(bl, data):
         resp = data['result']
 
-        return (
-            '*{host}*: {a_addr}\nTXT response: {txt}'.format(
-                host=bl,
-                a_addr=resp['a_response'],
-                txt=resp['txt_response']
-            )
+        record = '*{host}*: {a_addr}'.format(
+            host=bl,
+            a_addr=resp['a_response'] 
         )
+        
+        if resp['txt_response'] is not None:
+            record += "\nTXT response: {}".format(resp['txt_response'])
+            
+        return record
 
     for ip, change in changes.items():
 

@@ -47,7 +47,7 @@ class DNSBLResult(object):
                 result=dict(
                     a_response=result.response['a_response'][0].host,
                     txt_response=(txt_response[0].text.decode('utf-8')
-                                  if txt_response else "TXT request failed")
+                                  if txt_response else None)
                 ),
                 catogories=list(provider_categories)
             )

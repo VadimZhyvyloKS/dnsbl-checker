@@ -19,7 +19,7 @@ install_requires = [
 
 setup(
     name='dnsbl_checker',
-    version='0.0.1',
+    version='0.0.3',
     description='Asynchronous script for monitoring dns blacklists',
     long_description=_read('README.md'),
     author='Vadim Zhyvylo',
