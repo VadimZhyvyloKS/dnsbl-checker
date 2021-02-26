@@ -1,4 +1,4 @@
-aiohttp==2.3.10
+aiohttp==3.7.4
 aiodns==1.1.1
 tqdm==4.23.4
 requests==2.19.1
